@@ -1,5 +1,6 @@
-import jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import { compare } from "bcrypt";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 const createToken = (email, userID) => {
@@ -28,6 +29,34 @@ export const signup = async (req, res, next) => {
                 profileSetup: user.profileSetup,
             },
         });
+    } catch (error) {
+        console.log(error.message);
+        return res.status(error.statusCode).send("Internal Server Error");
+    }
+};
+
+export const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password)
+            return res.status(401).send("Please enter your email address and password");
+
+        const user = await User.findOne({ email });
+
+        if (!user) return res.status(404).send("User with the given email is not available");
+
+        const auth = await compare(password, user.password);
+
+        if (!auth) return res.status(400).send("Password incorrect");
+
+        res.cookie("jwt", createToken(email, user._id), {
+            maxAge,
+            secure: true,
+            sameSite: "None",
+        });
+
+        return res.status(200).json(user);
     } catch (error) {
         console.log(error.message);
         return res.status(error.statusCode).send("Internal Server Error");
