@@ -56,7 +56,8 @@ export const login = async (req, res, next) => {
             sameSite: "None",
         });
 
-        return res.status(200).json(user);
+        const { password: userPassword, ...rest } = user._doc;
+        return res.status(200).json(rest);
     } catch (error) {
         console.log(error.message);
         return res.status(error.statusCode).send("Internal Server Error");
