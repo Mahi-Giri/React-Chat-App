@@ -3,12 +3,35 @@ import Victory from "@/assets/victory.svg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { apiClient } from "@/lib/api.client.js";
 import { useState } from "react";
+import { toast } from "sonner";
+import { SIGNUP_ROUTE } from "../constant.js";
 
 const Auth = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
+    const validateSignup = () => {
+        if (!email.length) {
+            toast.error("Email is required.");
+            return false;
+        }
+        if (!password.length) {
+            toast.error("Password is required.");
+            return false;
+        }
+        if (!confirmPassword.length) {
+            toast.error("Confirm Password is required.");
+            return false;
+        }
+        if (password !== confirmPassword) {
+            toast.error("Password and confirm password should be same.");
+            return false;
+        }
+        return true;
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -17,7 +40,12 @@ const Auth = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
-        // Signup logic here
+
+        if (validateSignup()) {
+            const response = await apiClient.post(SIGNUP_ROUTE, { email, password });
+            console.log(response);
+            
+        }
     };
 
     return (
