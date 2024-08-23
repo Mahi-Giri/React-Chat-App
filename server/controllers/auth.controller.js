@@ -22,16 +22,11 @@ export const signup = async (req, res, next) => {
             sameSite: "None",
         });
 
-        return res.status(201).json({
-            user: {
-                id: user._id,
-                email: user.email,
-                profileSetup: user.profileSetup,
-            },
-        });
+        const { password: userPassword, ...rest } = user._doc;
+        return res.status(200).json(rest);
     } catch (error) {
         console.log(error.message);
-        return res.status(error.statusCode).send("Internal Server Error");
+        return res.status(400).send(error.message);
     }
 };
 
@@ -60,6 +55,6 @@ export const login = async (req, res, next) => {
         return res.status(200).json(rest);
     } catch (error) {
         console.log(error.message);
-        return res.status(error.statusCode).send("Internal Server Error");
+        return res.status(400).send(error.message);
     }
 };
